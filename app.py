@@ -287,7 +287,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     load_xlsx()
-    port = 8000
+    port = int(os.environ.get("PORT", 8000))
     server = HTTPServer(("0.0.0.0", port), Handler)
     print(f"服务已启动：http://0.0.0.0:{port}", flush=True)
     try:
