@@ -1,0 +1,33 @@
+# 缓存文件
+.names_cache.pkl
+__pycache__/
+*.pyc
+
+# 临时/调试脚本
+_bench.py
+_bench_cache.py
+_check_dict.py
+_dbg_en.py
+_exact.py
+_find_miss.py
+_gen_en.py
+_gen_es.py
+_gen_pt.py
+_quick.py
+_read_en.py
+_read_pt.py
+_reg.py
+_test.py
+_test_e2e.py
+_test_en.py
+_test_pt.py
+
+# cloudflared / 隧道工具
+cloudflared.exe
+cf.exe
+cf2.exe
+tunnel.py
+
+# 系统文件
+Thumbs.db
+.DS_Store
