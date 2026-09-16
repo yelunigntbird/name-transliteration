@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外国人名音译查询</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 640px;
+    padding: 36px 32px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .field { margin-bottom: 18px; }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafafa;
+  }
+  input:focus, select:focus {
+    border-color: #667eea;
+    background: #fff;
+  }
+  button {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 6px;
+  }
+  button:hover { opacity: 0.92; }
+  button:active { transform: scale(0.99); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* 性别选择 */
+  .gender-group {
+    display: flex;
+    gap: 10px;
+  }
+  .gender-btn {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafafa;
+    color: #555;
+    user-select: none;
+  }
+  .gender-btn.active {
+    border-color: #667eea;
+    background: #e0e7ff;
+    color: #4c51bf;
+    font-weight: 600;
+  }
+
+  .result {
+    margin-top: 28px;
+    padding: 22px;
+    border-radius: 12px;
+    background: #f6f8ff;
+    border-left: 4px solid #667eea;
+    display: none;
+  }
+  .result.show { display: block; animation: fade 0.3s; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .result-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .chinese-name {
+    font-size: 34px;
+    font-weight: 700;
+    color: #2d3748;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+  .source-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: #e0e7ff;
+    color: #4c51bf;
+    margin-bottom: 14px;
+  }
+  .source-tag.fallback { background: #fef3c7; color: #b45309; }
+  .phonetic-box {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f7fafc;
+    border-left: 3px solid #63b3ed;
+    border-radius: 6px;
+  }
+  .phonetic-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+  .phonetic-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2b6cb0;
+    letter-spacing: 1px;
+  }
+  .phonetic-note {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 3px;
+  }
+  .candidates {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed #d0d7e2;
+  }
+  .candidates-title {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .candidate {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 3px 6px 3px 0;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #444;
+  }
+  .candidate .o {
+    color: #999;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+  .error {
+    color: #e53e3e;
+    font-size: 14px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .loading {
+    text-align: center;
+    color: #667eea;
+    margin-top: 16px;
+    font-size: 14px;
+    display: none;
+  }
+  .footer {
+    text-align: center;
+    color: #aaa;
+    font-size: 11px;
+    margin-top: 22px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>外国人名音译查询</h1>
+    <p class="subtitle">输入外国名字与籍贯，得到其中文译名；词典未收录时由译音表补充</p>
+
+    <div class="field">
+      <label for="name">外国名字</label>
+      <input type="text" id="name" placeholder="例如：Smith / Napoleon / Victoria" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label for="origin">籍贯 / 语种</label>
+      <select id="origin">
+        <option value="">请选择（可选）</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>性别</label>
+      <div class="gender-group" id="genderGroup">
+        <div class="gender-btn active" data-gender="male">男</div>
+        <div class="gender-btn" data-gender="female">女</div>
+      </div>
+    </div>
+
+    <button id="btn">查询音译</button>
+    <div class="loading" id="loading">查询中...</div>
+
+    <div class="result" id="result">
+      <div class="result-label">中文译名</div>
+      <div class="chinese-name" id="chinese"></div>
+      <span class="source-tag" id="source"></span>
+      <div class="phonetic-box" id="phoneticBox" style="display:none">
+        <div class="phonetic-label" id="phoneticLabel">按所选籍贯译音表音译</div>
+        <div class="phonetic-value" id="phoneticValue"></div>
+        <div class="phonetic-note" id="phoneticNote"></div>
+      </div>
+      <div class="candidates" id="candidatesBox" style="display:none">
+        <div class="candidates-title">词典中相关条目：</div>
+        <div id="candidates"></div>
+      </div>
+    </div>
+    <div class="error" id="error"></div>
+
+    <p class="footer">数据来源：人名翻译.xlsx + 各语种译音表</p>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentGender = 'male';
+
+// 性别按钮切换
+$('genderGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.gender-btn');
+  if (!btn) return;
+  $('genderGroup').querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentGender = btn.dataset.gender;
+});
+
+// 加载籍贯列表
+fetch('/api/origins')
+  .then(r => r.json())
+  .then(data => {
+    const sel = $('origin');
+    data.origins.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o; opt.textContent = o;
+      sel.appendChild(opt);
+    });
+  })
+  .catch(() => {});
+
+function showResult(data) {
+  $('error').textContent = '';
+  if (data.error) { $('error').textContent = data.error; $('result').classList.remove('show'); return; }
+  $('chinese').textContent = data.chinese;
+  const src = $('source');
+  src.textContent = data.source;
+  src.className = 'source-tag' + (data.source.includes('译音表') ? ' fallback' : '');
+
+  // 译音表对照：当主译名来自词典时，展示按所选籍贯译音表生成的音译
+  const pbox = $('phoneticBox');
+  if (data.source.includes('词典') && data.phonetic) {
+    const same = data.phonetic === data.chinese;
+    $('phoneticLabel').textContent = `按「${data.origin}」译音表音译`;
+    $('phoneticValue').textContent = data.phonetic;
+    $('phoneticNote').textContent = same
+      ? '与词典译名一致'
+      : '译音表结果与词典不同，仅供参考对照';
+    pbox.style.display = 'block';
+  } else {
+    pbox.style.display = 'none';
+  }
+
+  const cands = data.candidates || [];
+  if (cands.length) {
+    $('candidatesBox').style.display = 'block';
+    $('candidates').innerHTML = cands.map(c =>
+      `<span class="candidate">${c.chinese}<span class="o">[${c.origin}]</span></span>`
+    ).join('');
+  } else {
+    $('candidatesBox').style.display = 'none';
+  }
+  $('result').classList.add('show');
+}
+
+async function doTranslate() {
+  const name = $('name').value.trim();
+  const origin = $('origin').value;
+  if (!name) { $('error').textContent = '请输入名字'; $('result').classList.remove('show'); return; }
+  $('loading').style.display = 'block';
+  $('error').textContent = '';
+  try {
+    const r = await fetch(`/api/translate?name=${encodeURIComponent(name)}&origin=${encodeURIComponent(origin)}&gender=${currentGender}`);
+    const data = await r.json();
+    showResult(data);
+  } catch (e) {
+    $('error').textContent = '请求失败：' + e.message;
+  } finally {
+    $('loading').style.display = 'none';
+  }
+}
+
+$('btn').addEventListener('click', doTranslate);
+$('name').addEventListener('keydown', e => { if (e.key === 'Enter') doTranslate(); });
+</script>
+</body>
+</html>
